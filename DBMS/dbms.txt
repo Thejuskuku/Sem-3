@@ -1,0 +1,235 @@
+CREATE DATABASE bank;
+USE bank;
+
+CREATE TABLE account (
+    account_number BIGINT PRIMARY KEY,
+    ifsc_code VARCHAR(11),
+    bank_name VARCHAR(50),
+    bank_branch VARCHAR(50),
+    account_type VARCHAR(20),
+    account_balance DECIMAL(10, 2)
+);
+-- Convert bank_name to upper case
+SELECT UPPER(bank_name) FROM account;
+
+-- Convert bank_name to lower case
+SELECT LOWER(bank_name) FROM account;
+
+-- Get the length of bank_name
+SELECT LENGTH(bank_name) FROM account;
+
+-- Replace 'Bank' with 'Finance' in bank_name
+SELECT REPLACE(bank_name, 'Bank', 'Finance') FROM account;
+-- Round account_balance to 1 decimal place
+SELECT ROUND(account_balance, 1) FROM account;
+
+-- Get the ceiling value of account_balance
+SELECT CEIL(account_balance) FROM account;
+
+-- Get the floor value of account_balance
+SELECT FLOOR(account_balance) FROM account;
+
+-- Get the sign of account_balance (-1, 0, or 1)
+SELECT SIGN(account_balance) FROM account;
+-- Get the current date
+SELECT CURRENT_DATE();
+
+-- Get the current system date and time
+SELECT SYSDATE();
+
+-- Extract the month from the current date
+SELECT MONTH(CURRENT_DATE());
+
+-- Extract the year from the current date
+SELECT YEAR(CURRENT_DATE());
+-- Get the ASCII value of the first 5 characters in bank_name
+SELECT ASCII(SUBSTRING(bank_name, 1, 1)) AS ascii_char1,
+       ASCII(SUBSTRING(bank_name, 2, 1)) AS ascii_char2,
+       ASCII(SUBSTRING(bank_name, 3, 1)) AS ascii_char3,
+       ASCII(SUBSTRING(bank_name, 4, 1)) AS ascii_char4,
+       ASCII(SUBSTRING(bank_name, 5, 1)) AS ascii_char5
+FROM account;
+
+
+
+CREATE DATABASE college;
+USE college;
+
+CREATE TABLE faculty (
+    faculty_code INT PRIMARY KEY,
+    faculty_name VARCHAR(50)
+);
+
+CREATE TABLE subject (
+    subject_code INT PRIMARY KEY,
+    subject_name VARCHAR(50),
+    max_marks INT,
+    faculty_code INT,
+    FOREIGN KEY (faculty_code) REFERENCES faculty(faculty_code)
+);
+
+CREATE TABLE student (
+    student_code INT PRIMARY KEY,
+    student_name VARCHAR(50),
+    dob DATE,
+    student_branch VARCHAR(50),
+    admission_date DATE
+);
+-- 1. Display the number of faculties
+SELECT COUNT(*) AS total_faculties FROM faculty;
+
+-- 2. Display the details of students with names starting with 'A'
+SELECT * FROM student WHERE student_name LIKE 'A%';
+
+-- 3. Display the total number of records in the student table
+SELECT COUNT(*) AS total_students FROM student;
+
+-- 4. Find the number of branches available in the student table
+SELECT COUNT(DISTINCT student_branch) AS total_branches FROM student;
+
+-- 5. Display faculties and their allotted subjects
+SELECT f.faculty_name, s.subject_name
+FROM faculty f
+JOIN subject s ON f.faculty_code = s.faculty_code;
+
+-- 6. Display the names of faculties who handle more than one subject
+SELECT f.faculty_name
+FROM faculty f
+JOIN subject s ON f.faculty_code = s.faculty_code
+GROUP BY f.faculty_name
+HAVING COUNT(s.subject_code) > 1;
+
+-- 7. Display the subject name and marks in ascending order of marks
+SELECT subject_name, max_marks
+FROM subject
+ORDER BY max_marks ASC;
+
+-- 8. Rename the column 'max_marks' as 'Maximum'
+SELECT subject_name, max_marks AS Maximum FROM subject;
+
+
+CREATE TABLE Department (
+    department_id INT PRIMARY KEY,
+    department_name VARCHAR(50),
+    manager_id INT,
+    location VARCHAR(50)
+);
+
+CREATE TABLE Emp (
+    emp_no INT PRIMARY KEY,
+    name VARCHAR(50),
+    job VARCHAR(50),
+    salary DECIMAL(10, 2),
+    hiredate DATE,
+    commission DECIMAL(10, 2),
+    department_no INT,
+    FOREIGN KEY (department_no) REFERENCES Department(department_id),
+    FOREIGN KEY (manager_id) REFERENCES Emp(emp_no)
+);
+SELECT name, salary 
+FROM Emp 
+WHERE salary NOT BETWEEN 5000 AND 35000;
+SELECT name, emp_no, hiredate 
+FROM Emp 
+WHERE hiredate BETWEEN '1990-02-20' AND '1998-05-01'
+ORDER BY hiredate ASC;
+SELECT name AS Employee, salary AS Monthly_Salary 
+FROM Emp 
+WHERE salary BETWEEN 5000 AND 12000 
+AND department_no IN (2, 4);
+SELECT name, hiredate 
+FROM Emp 
+WHERE YEAR(hiredate) = 1994;
+SELECT name, salary, commission 
+FROM Emp 
+WHERE commission IS NOT NULL 
+ORDER BY salary DESC, commission DESC;
+SELECT name, job 
+FROM Emp 
+WHERE manager_id IS NULL;
+SELECT name 
+FROM Emp 
+WHERE SUBSTRING(name, 3, 1) = 'a';
+SELECT name 
+FROM Emp 
+WHERE name LIKE '%a%' AND name LIKE '%e%';
+SELECT name, job, salary 
+FROM Emp 
+WHERE job NOT IN ('Sales Representative', 'Stock Clerk') 
+AND salary NOT IN (2000, 4000, 7000);
+SELECT e.name, d.department_name, e.department_no 
+FROM Emp e
+JOIN Department d ON e.department_no = d.department_id
+WHERE e.department_no IN (
+    SELECT department_no 
+    FROM Emp 
+    WHERE name = 'John'
+);
+SELECT name, hiredate 
+FROM Emp 
+WHERE department_no = (
+    SELECT department_no 
+    FROM Emp 
+    WHERE name = 'Amit'
+) AND name <> 'John';
+
+
+CREATE TABLE ACTOR (
+    Act_id INT PRIMARY KEY,
+    Act_Name VARCHAR(50),
+    Act_Gender VARCHAR(10)
+);
+
+CREATE TABLE DIRECTOR (
+    Dir_id INT PRIMARY KEY,
+    Dir_Name VARCHAR(50),
+    Dir_Phone VARCHAR(15)
+);
+
+CREATE TABLE MOVIES (
+    Mov_id INT PRIMARY KEY,
+    Mov_Title VARCHAR(100),
+    Mov_Year YEAR,
+    Mov_Lang VARCHAR(20),
+    Dir_id INT,
+    FOREIGN KEY (Dir_id) REFERENCES DIRECTOR(Dir_id)
+);
+
+CREATE TABLE MOVIE_CAST (
+    Act_id INT,
+    Mov_id INT,
+    Role VARCHAR(50),
+    PRIMARY KEY (Act_id, Mov_id),
+    FOREIGN KEY (Act_id) REFERENCES ACTOR(Act_id),
+    FOREIGN KEY (Mov_id) REFERENCES MOVIES(Mov_id)
+);
+
+CREATE TABLE RATING (
+    Mov_id INT PRIMARY KEY,
+    Rev_Stars INT,
+    FOREIGN KEY (Mov_id) REFERENCES MOVIES(Mov_id)
+);
+SELECT Mov_Title 
+FROM MOVIES 
+JOIN DIRECTOR ON MOVIES.Dir_id = DIRECTOR.Dir_id 
+WHERE Dir_Name = 'Hitch Cock';
+SELECT M.Mov_Title 
+FROM MOVIES M
+JOIN MOVIE_CAST MC ON M.Mov_id = MC.Mov_id
+GROUP BY MC.Act_id, M.Mov_Title
+HAVING COUNT(M.Mov_id) >= 2;
+SELECT DISTINCT A.Act_Name 
+FROM ACTOR A
+JOIN MOVIE_CAST MC ON A.Act_id = MC.Act_id
+JOIN MOVIES M ON MC.Mov_id = M.Mov_id
+WHERE M.Mov_Year < 2000 OR M.Mov_Year > 2015;
+UPDATE RATING R
+JOIN MOVIES M ON R.Mov_id = M.Mov_id
+JOIN DIRECTOR D ON M.Dir_id = D.Dir_id
+SET R.Rev_Stars = 5
+WHERE D.Dir_Name = 'Steven Spielberg';
+SELECT M.Mov_Title, R.Rev_Stars 
+FROM MOVIES M
+JOIN RATING R ON M.Mov_id = R.Mov_id
+WHERE R.Rev_Stars IS NOT NULL;
+
